@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>cosxs — todo se dibuja con ondas</title>
+<meta name="description" content="cosxs es un estudio de diseño. Con las suficientes ondas puedes dibujar cualquier forma; con las suficientes ideas, cualquier marca.">
+<meta name="theme-color" content="#0A0B10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..800,0..100;1,9..144,300..800,0..100&family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0A0B10; --fg: #F1EDE4; --mut: #8E92A3; --line: rgba(241,237,228,.14); --acc: #F1EDE4; --serif: 'Fraunces', Georgia, serif; --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; } ul, ol { list-style: none; }
+  a { color: inherit; text-decoration: none; } button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 4px; border-radius: 4px; }
+  ::selection { background: var(--acc); color: #0A0B10; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mono { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+  #cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+  #spacer { pointer-events: none; }
+
+  .top { position: fixed; z-index: 20; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: 20px clamp(18px, 3vw, 44px); pointer-events: none; }
+  .top > * { pointer-events: auto; }
+  .brand { font-family: var(--serif); font-weight: 600; font-size: 26px; letter-spacing: -.03em; font-variation-settings: 'SOFT' 100; }
+  .nav { display: flex; gap: clamp(14px, 2.4vw, 32px); color: var(--mut); } .nav button { transition: color .25s; } .nav button:hover, .nav button.on { color: var(--fg); }
+  @media (max-width: 640px) { .nav button:not(.cta) { display: none; } }
+  .nav .cta { color: #0A0B10; background: var(--fg); padding: 9px 16px; border-radius: 40px; font-weight: 500; } .nav .cta:hover { background: var(--acc); color: #0A0B10; }
+
+  .hud { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding: 22px clamp(18px, 3vw, 44px); color: var(--mut); pointer-events: none; }
+  .hud b { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .hud .k { display: flex; flex-direction: column; gap: 6px; } .hud .k big { font-family: var(--serif); font-weight: 300; font-size: clamp(38px, 5vw, 64px); line-height: .8; color: var(--fg); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .hud .f { text-transform: none; letter-spacing: .02em; opacity: .8; }
+  .hud .r { text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .dots { display: flex; gap: 6px; pointer-events: auto; } .dots button { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: all .35s var(--ease); } .dots button.on { width: 26px; border-radius: 5px; background: var(--acc); } .dots button:hover { background: var(--mut); }
+  @media (max-width: 640px) { .hud .f { display: none; } }
+
+  /* paneles: cada estación */
+  .pn { position: fixed; z-index: 10; width: min(470px, 42vw); top: 50%; will-change: transform, opacity; transform: translateY(-50%); }
+  .pn.l { left: clamp(18px, 4vw, 64px); } .pn.r { right: clamp(18px, 4vw, 64px); }
+  .pn.c { left: 50%; width: min(760px, calc(100vw - 40px)); top: auto; bottom: clamp(70px, 12vh, 130px); transform: translateX(-50%); text-align: center; }
+  .pn .ey { display: flex; gap: 14px; color: var(--mut); margin-bottom: 16px; } .pn.c .ey { justify-content: center; } .pn .ey b { color: var(--acc); font-weight: 500; }
+  .pn h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 5.4vw, 84px); line-height: .94; letter-spacing: -.04em; font-variation-settings: 'SOFT' 100; } .pn h2 em { font-style: italic; color: var(--acc); }
+  .pn.c h2 { font-size: clamp(28px, 4vw, 56px); }
+  .pn p { margin-top: 18px; color: #C6C8D3; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.45; max-width: 40ch; } .pn.c p { margin-inline: auto; }
+  .st { display: flex; gap: 22px; margin-top: 22px; flex-wrap: wrap; } .st b { display: block; font-family: var(--serif); font-weight: 400; font-size: 38px; letter-spacing: -.04em; line-height: 1; color: var(--fg); } .st span { color: var(--mut); }
+  .tg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; } .tg span { padding: 5px 12px; border: 1px solid var(--line); border-radius: 40px; color: var(--mut); }
+  .btn { display: inline-flex; align-items: center; gap: 12px; margin-top: 24px; padding: 14px 24px; border-radius: 60px; background: var(--fg); color: #0A0B10; font-weight: 600; transition: transform .3s var(--ease), background .3s; } .btn:hover { transform: translateY(-3px); background: var(--acc); } .btn.g { background: transparent; color: var(--fg); border: 1px solid var(--line); margin-left: 8px; } .btn.g:hover { border-color: var(--fg); background: transparent; }
+  .lst li { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--line); } .lst li:last-child { border-bottom: 1px solid var(--line); } .lst span:first-child { color: var(--acc); } .lst b { font-family: var(--serif); font-weight: 400; font-size: clamp(20px, 2vw, 28px); letter-spacing: -.03em; } .lst em { font-style: normal; color: var(--mut); font-size: 12px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .lst { margin-top: 20px; }
+  form { display: grid; gap: 10px; margin-top: 22px; text-align: left; } .fld { width: 100%; background: rgba(241,237,228,.05); border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; font: 500 16px var(--sans); color: var(--fg); } .fld::placeholder { color: var(--mut); } .fld:focus { outline: none; border-color: var(--fg); } textarea.fld { min-height: 84px; resize: none; }
+  .mail { display: inline-block; margin-top: 18px; font-family: var(--serif); font-size: clamp(22px, 2.6vw, 36px); border-bottom: 1px solid var(--fg); letter-spacing: -.03em; } .mail:hover { color: var(--acc); border-color: var(--acc); }
+  #reply { min-height: 1.2em; color: var(--acc); font-weight: 500; font-size: 14px; }
+  .pn.form { max-height: calc(100svh - 150px); overflow: auto; scrollbar-width: none; }
+
+  @media (max-width: 820px) {
+    .pn, .pn.l, .pn.r { left: 50%; right: auto; width: calc(100vw - 36px); top: auto; bottom: 104px; transform: translateX(-50%); text-align: left; }
+    .pn h2 { font-size: clamp(30px, 8vw, 46px); } .pn p { font-size: 15px; margin-top: 10px; } .st { margin-top: 12px; gap: 14px; } .st b { font-size: 26px; } .tg { display: none; } .btn { margin-top: 14px; padding: 11px 20px; }
+    .lst { margin-top: 10px; } .lst li { padding: 7px 0; } .pn.form { max-height: 58svh; }
+  }
+
+  dialog { padding: 0; border: 1px solid var(--line); border-radius: 26px; width: min(960px, calc(100vw - 20px)); max-height: calc(100svh - 20px); background: #0F1017; color: var(--fg); overflow: hidden; box-shadow: 0 50px 120px -20px #000; } dialog::backdrop { background: rgba(4,5,10,.75); backdrop-filter: blur(8px); } dialog[open] { animation: pop .6s var(--ease); } @keyframes pop { from { opacity: 0; transform: translateY(40px) scale(.96); } }
+  .cs { display: grid; grid-template-columns: .85fr 1.15fr; max-height: calc(100svh - 22px); overflow: auto; } .cs .a { display: grid; place-items: center; padding: 30px; border-right: 1px solid var(--line); background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.05), transparent 70%); } .cs .a svg { width: 100%; max-width: 320px; overflow: visible; }
+  .cs .t { padding: clamp(22px, 3vw, 40px); display: flex; flex-direction: column; gap: 16px; } .cs .tp { display: flex; justify-content: space-between; align-items: center; color: var(--mut); } .x { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; } .x:hover { background: var(--fg); color: #0A0B10; }
+  .cs h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 4.6vw, 64px); line-height: .94; letter-spacing: -.04em; font-variation-settings: 'SOFT' 100; } .cs .ld { font-size: 19px; color: #D2D4DE; line-height: 1.35; } .cs h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); } .cs p { margin: 0; color: #C6C8D3; line-height: 1.5; }
+  .cs .res { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .cs .res div { border: 1px solid var(--line); border-radius: 14px; padding: 12px; } .cs .res b { display: block; font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -.04em; line-height: 1; } .cs .res span { font-size: 12px; color: var(--mut); }
+  @media (max-width: 760px) { .cs { grid-template-columns: 1fr; } .cs .a { border-right: 0; border-bottom: 1px solid var(--line); padding: 20px; } .cs .a svg { max-width: 160px; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<canvas id="cv" aria-hidden="true"></canvas>
+<header class="top">
+  <a class="brand" href="#" aria-label="cosxs, inicio" id="home">cosxs</a>
+  <nav class="nav mono" aria-label="Principal"><button type="button" data-go="1">Proyectos</button><button type="button" data-go="7">Servicios</button><button type="button" data-go="8">Proceso</button><button type="button" class="cta" data-go="9">Contacto</button></nav>
+</header>
+<main id="panels"></main>
+<div id="spacer"></div>
+<footer class="hud mono">
+  <div class="k"><span>Armónicos</span><big id="kn">000</big><span class="f">z(s) = Σ cₖ · e<sup>iks</sup></span></div>
+  <div class="r"><span><b id="cur">01</b> / <span id="tot">10</span></span><div class="dots" id="dots" role="group" aria-label="Ir a la estación"></div></div>
+</footer>
+
+<dialog id="case" aria-labelledby="c-title"><div class="cs"><div class="a" id="c-a"></div><div class="t">
+  <div class="tp mono"><span id="c-k"></span><button class="x" id="c-x" type="button" aria-label="Cerrar">✕</button></div>
+  <h3 id="c-title"></h3><p class="ld" id="c-ld"></p><div><h4>Reto</h4><p id="c-ch"></p></div><div><h4>Solución</h4><p id="c-so"></p></div><div class="res" id="c-r"></div>
+</div></div></dialog>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, TAU = Math.PI * 2;
+  var NS = 512, M = 150, P = 420;
+
+  /* ---------- formas (curvas cerradas) ---------- */
+  function arc(cx, cy, r, a0, a1, n) { var o = []; for (var i = 0; i <= n; i++) { var a = (a0 + (a1 - a0) * i / n) * Math.PI / 180; o.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return o; }
+  function line(a, b, n) { var o = []; for (var i = 0; i <= n; i++) o.push([a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n]); return o; }
+  function bez(p0, p1, p2, n) { var o = []; for (var i = 0; i <= n; i++) { var t = i / n, u = 1 - t; o.push([u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0], u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1]]); } return o; }
+  function cat() { return [].concat.apply([], arguments); }
+  function param(fn) { var o = []; for (var j = 0; j < NS; j++) o.push(fn(TAU * j / NS)); return o; }
+  function spow(v, e) { return (v < 0 ? -1 : 1) * Math.pow(Math.abs(v), e); }
+  function norm(pts, xOnly) {
+    var L = [0], i; for (i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    var close = Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]); pts = pts.concat([pts[0]]); L.push(L[L.length - 1] + close);
+    var tot = L[L.length - 1], out = [], k = 1; for (i = 0; i < NS; i++) { var d = tot * i / NS; while (k < L.length - 1 && L[k] < d) k++; var seg = L[k] - L[k - 1] || 1, t = (d - L[k - 1]) / seg; out.push([pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * t, pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * t]); }
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; out.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, sc = xOnly ? (x1 - x0) / 2 : Math.max(x1 - x0, y1 - y0) / 2;
+    return out.map(function (p) { return [(p[0] - cx) / sc, (p[1] - cy) / sc]; });
+  }
+  var SH = [];
+  SH.push(norm(cat(arc(.5, 0, .5, 40, 320, 60), line([.883, -.321], [1.28, -.171], 8), arc(1.75, 0, .5, 200, 560, 80), line([1.28, -.171], [3.245, .364], 24), arc(3, .25, .27, 25, 270, 36), arc(3, -.25, .27, 90, -160, 36), line([2.746, -.342], [3.62, .5], 12), line([3.62, .5], [4.58, -.5], 24), line([4.58, -.5], [3.62, -.5], 16), line([3.62, -.5], [4.58, .5], 24), line([4.58, .5], [5.445, .364], 14), arc(5.2, .25, .27, 25, 270, 36), arc(5.2, -.25, .27, 90, -160, 36), bez([4.946, -.342], [3, -2.6], [.883, .321], 60)), true));
+  SH.push(norm(param(function (t) { var r = .5 + .5 * Math.pow(.5 + .5 * Math.cos(18 * t), 4); return [r * Math.cos(t), r * Math.sin(t)]; })));
+  SH.push(norm(param(function (t) { return [spow(Math.cos(t), .38), .86 * spow(Math.sin(t), .38)]; })));
+  SH.push(norm(param(function (t) { return [.7 * Math.cos(t) + .3 * Math.cos(4 * t), .7 * Math.sin(t) - .3 * Math.sin(4 * t)]; })));
+  SH.push(norm(cat(line([-.5, -.9], [-.5, .9], 30), line([-.5, .9], [.1, .9], 16), arc(.1, .45, .45, 90, -90, 40), line([.1, 0], [-.2, 0], 12), line([-.2, 0], [-.2, -.9], 24), line([-.2, -.9], [-.5, -.9], 8))));
+  SH.push(norm(cat(line([-.9, -.9], [0, .9], 40), line([0, .9], [.9, -.9], 40), line([.9, -.9], [.55, -.9], 8), line([.55, -.9], [.4, -.5], 10), line([.4, -.5], [-.4, -.5], 20), line([-.4, -.5], [-.55, -.9], 10), line([-.55, -.9], [-.9, -.9], 8))));
+  SH.push(norm(cat(line([0, .95], [.6, .1], 30), line([.6, .1], [.03, -.5], 24), param2(function (u) { return [.03 + .2 * Math.sin(u * 9), -.5 - u * .5]; }, 40), param2(function (u) { return [-.03 + .2 * Math.sin((1 - u) * 9), -1 + u * .5]; }, 40), line([-.03, -.5], [-.6, .1], 24), line([-.6, .1], [0, .95], 30))));
+  function param2(fn, n) { var o = []; for (var i = 0; i <= n; i++) o.push(fn(i / n)); return o; }
+  SH.push(norm(param(function (t) { return [Math.sin(t) + 2 * Math.sin(2 * t), Math.cos(t) - 2 * Math.cos(2 * t)]; })));
+  SH.push(norm(param(function (t) { return [Math.sin(3 * t + 1), Math.sin(2 * t)]; })));
+  SH.push(norm(param(function (t) { return [Math.cos(t) * (1 + .03 * Math.sin(3 * t)), Math.sin(t) * (1 + .03 * Math.sin(3 * t))]; })));
+
+  /* ---------- DFT ---------- */
+  var cosN = new Float32Array(NS), sinN = new Float32Array(NS); for (var q = 0; q < NS; q++) { cosN[q] = Math.cos(TAU * q / NS); sinN[q] = Math.sin(TAU * q / NS); }
+  var CO = SH.map(function (pts) {
+    var re = new Float32Array(2 * M + 1), im = new Float32Array(2 * M + 1);
+    for (var k = -M; k <= M; k++) { var sr = 0, si = 0; for (var j = 0; j < NS; j++) { var idx = (((k * j) % NS) + NS) % NS, c = cosN[idx], s = sinN[idx], x = pts[j][0], y = pts[j][1]; sr += x * c + y * s; si += y * c - x * s; } re[k + M] = sr / NS; im[k + M] = si / NS; }
+    return { re: re, im: im };
+  });
+  var CT = new Float32Array((M + 1) * P), ST = new Float32Array((M + 1) * P); for (var kk = 0; kk <= M; kk++) for (var pp = 0; pp < P; pp++) { CT[kk * P + pp] = Math.cos(kk * TAU * pp / P); ST[kk * P + pp] = Math.sin(kk * TAU * pp / P); }
+
+  /* ---------- datos ---------- */
+  var ST_ = [
+    { col: '#F1EDE4', K: 120, kind: 'hero' },
+    { col: '#FFC933', K: 70, kind: 'p', n: 'Lumen Studio', c: 'Branding', y: 2025, ld: 'Una marca de iluminación que por fin emite luz.', ch: 'Crear una marca que “emita” luz sin caer en el cliché de la bombilla, válida en un plano técnico y en una proyección de seis metros.', so: 'Un único gesto: un punto que irradia. De ahí salen el símbolo, los dieciocho rayos y un motion que respira.', r: [['+64%', 'consultas'], ['3×', 'seguidores'], ['12', 'clientes']], tg: ['Logotipo', 'Motion', 'Web'] },
+    { col: '#FF8A5C', K: 60, kind: 'p', n: 'Maison Fève', c: 'Packaging', y: 2025, ld: 'Chocolate con memoria: una caja que se guarda.', ch: 'Competir con la gran distribución con una caja que se lea desde dos metros y sobreviva a los bombones.', so: 'Caja rígida en marrón cacao con sello de monograma y una cinta interior de color por variedad.', r: [['×2,3', 'ventas'], ['2 sem.', 'agotado'], ['5', 'tiendas']], tg: ['Estructura', 'Sello', 'Etiquetas'] },
+    { col: '#8C9BFF', K: 60, kind: 'p', n: 'Orbit Festival', c: 'Identidad', y: 2024, ld: 'Un festival donde todo gira.', ch: 'Una idea que soportara cientos de aplicaciones y se pudiera animar sin equipo de motion.', so: 'Órbitas como retícula: cada artista ocupa una trayectoria. Plantillas de animación para el equipo propio.', r: [['38k', 'asistentes'], ['+120%', 'alcance'], ['100+', 'piezas']], tg: ['Identidad', 'Motion', 'Señalética'] },
+    { col: '#FF5A4D', K: 70, kind: 'p', n: 'Páprika Foods', c: 'Editorial', y: 2024, ld: 'La receta como objeto de diseño.', ch: 'Una revista legible con las manos manchadas y sostenible de producir en cada número.', so: 'Retícula de seis columnas, una inicial gigante como firma de cada artículo y un color por estación.', r: [['12k', 'suscriptores'], ['4', 'números/año'], ['ADC', 'finalista']], tg: ['Retícula', 'Cabecera', 'Plantillas'] },
+    { col: '#5FE3B0', K: 70, kind: 'p', n: 'Atlas Type', c: 'Tipografía', y: 2023, ld: 'Letras para orientarse.', ch: 'Distinguir formas parecidas (I, l, 1) sin renunciar a una voz cálida.', so: 'Ejes generosos, aperturas amplias y terminaciones cortadas. Tres pesos y símbolos cartográficos.', r: [['TDC', 'ganador'], ['3', 'pesos'], ['480', 'glifos']], tg: ['3 pesos', 'Specimen', 'Web font'] },
+    { col: '#4FC3FF', K: 70, kind: 'p', n: 'Kite Mobility', c: 'Motion', y: 2025, ld: 'Una identidad que se aprende en movimiento.', ch: 'Ser reconocibles sin presupuesto: la propia interfaz tenía que ser el anuncio.', so: 'Un rombo con cola que se dibuja como una ruta. Toda la app comparte el mismo lenguaje de trazos.', r: [['4,8★', 'valoración'], ['90k', 'descargas'], ['−30%', 'captación']], tg: ['Logo animado', 'UI motion', 'Redes'] },
+    { col: '#E7A6FF', K: 50, kind: 'svc' },
+    { col: '#FFD166', K: 50, kind: 'proc' },
+    { col: '#F1EDE4', K: 26, kind: 'contact' }
+  ];
+  var NST = ST_.length, panels = $('#panels');
+  function pn(i, inner, cls) { return '<section class="pn ' + (cls || '') + '" data-i="' + i + '" aria-label="' + (i + 1) + '">' + inner + '</section>'; }
+  var html = '';
+  ST_.forEach(function (s, i) {
+    var num = ('0' + i).slice(-2);
+    if (s.kind === 'hero') html += pn(i, '<div class="ey mono"><b>' + num + '</b><span>cosxs · estudio de diseño · Estambul</span></div><h2>Todo se dibuja<br>con <em>ondas</em>.</h2><p>Un círculo, sumado a otro círculo, y a otro… Con las suficientes ondas puedes dibujar cualquier forma. Con las suficientes ideas, cualquier marca.</p><span class="mono" style="display:block;margin-top:22px;color:var(--mut)">Desliza para sumar armónicos ↓</span>', 'c');
+    else if (s.kind === 'p') html += pn(i, '<div class="ey mono"><b>' + num + '</b><span>' + s.c + ' · ' + s.y + '</span></div><h2>' + s.n + '</h2><p>' + s.ld + '</p><div class="st">' + s.r.map(function (r) { return '<div><b>' + r[0] + '</b><span class="mono">' + r[1] + '</span></div>'; }).join('') + '</div><div class="tg mono">' + s.tg.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div><button class="btn" type="button" data-case="' + i + '">Leer el caso <span>→</span></button>');
+    else if (s.kind === 'svc') html += pn(i, '<div class="ey mono"><b>' + num + '</b><span>Servicios</span></div><h2>Qué<br><em>dibujamos</em></h2><ol class="lst"><li><span class="mono">01</span><b>Identidad de marca</b><em>Logo · sistema</em></li><li><span class="mono">02</span><b>Editorial &amp; print</b><em>Libros · revistas</em></li><li><span class="mono">03</span><b>Dirección de arte</b><em>Campañas</em></li><li><span class="mono">04</span><b>Packaging</b><em>Envases</em></li><li><span class="mono">05</span><b>Motion</b><em>Animación</em></li></ol>');
+    else if (s.kind === 'proc') html += pn(i, '<div class="ey mono"><b>' + num + '</b><span>Proceso · 6–10 semanas</span></div><h2>Cómo <em>sumamos</em></h2><ol class="lst"><li><span class="mono">01</span><b>Descubrir</b><em>1–2 sem.</em></li><li><span class="mono">02</span><b>Concepto</b><em>2–3 sem.</em></li><li><span class="mono">03</span><b>Sistema</b><em>2–3 sem.</em></li><li><span class="mono">04</span><b>Entrega</b><em>1 sem.</em></li></ol><p>Cada fase añade armónicos: primero la forma general, después el detalle.</p>');
+    else html += pn(i, '<div class="ey mono"><b>' + num + '</b><span>Contacto</span></div><h2>Volvemos<br>al <em>círculo</em>.</h2><a class="mail" href="mailto:hola@cosxs.com">hola@cosxs.com ↗</a><form id="form" novalidate autocomplete="off"><label class="sr" for="nm">Nombre</label><input class="fld" id="nm" placeholder="Tu nombre"><label class="sr" for="em">Email</label><input class="fld" id="em" type="email" placeholder="tu@email.com"><label class="sr" for="ms">Mensaje</label><textarea class="fld" id="ms" placeholder="¿Qué quieres que exista?"></textarea><div><button class="btn" type="submit" style="margin-top:4px">Enviar <span>→</span></button></div><div id="reply" role="status" aria-live="polite"></div></form>', 'form');
+  });
+  panels.innerHTML = html;
+  var pnEls = $$('.pn'), dots = $('#dots');
+  dots.innerHTML = ST_.map(function (_, i) { return '<button type="button" aria-label="Estación ' + (i + 1) + '" data-go="' + i + '"></button>'; }).join(''); $('#tot').textContent = ('0' + NST).slice(-2);
+
+  /* ---------- lienzo ---------- */
+  var cv = $('#cv'), cx = cv.getContext('2d'), W, H, dpr = Math.min(devicePixelRatio || 1, 2), narrow = false;
+  function resize() {
+    W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); narrow = W < 820;
+    $('#spacer').style.height = ((NST - 1) * 105 + 100) + 'vh';
+    pnEls.forEach(function (p, i) { p.classList.remove('l', 'r'); if (i > 0 && !narrow) p.classList.add(i % 2 ? 'l' : 'r'); });
+  }
+  addEventListener('resize', resize); resize();
+  function place(i) { if (i === 0) return { x: W / 2, y: narrow ? H * .3 : H * .4, R: W * (narrow ? .43 : .4) }; if (narrow) return { x: W / 2, y: H * .3, R: Math.min(W * .34, H * .19) }; return { x: W * (i % 2 ? .72 : .28), y: H * .5, R: Math.min(W * .22, H * .33) }; }
+  function hex(h) { return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
+  function mixc(a, b, t) { var A = hex(a), B = hex(b); return 'rgb(' + Math.round(A[0] + (B[0] - A[0]) * t) + ',' + Math.round(A[1] + (B[1] - A[1]) * t) + ',' + Math.round(A[2] + (B[2] - A[2]) * t) + ')'; }
+  function sm(a, b, x) { var t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+
+  var bre = new Float32Array(2 * M + 1), bim = new Float32Array(2 * M + 1), X = new Float32Array(P), Y = new Float32Array(P);
+  function blend(a, b, m, K) {
+    var kk = Math.min(M, Math.floor(K)), A = CO[a], B = CO[b];
+    for (var k = -kk; k <= kk; k++) { var i = k + M, w = k === 0 ? 1 : (function (x) { return Math.sin(x) / x; })(Math.PI * Math.abs(k) / (K + 1)); bre[i] = (A.re[i] + (B.re[i] - A.re[i]) * m) * w; bim[i] = (A.im[i] + (B.im[i] - A.im[i]) * m) * w; }
+    X.fill(0); Y.fill(0);
+    for (k = -kk; k <= kk; k++) {
+      var ii = k + M, cr = bre[ii], ci = bim[ii], ak = Math.abs(k), sg = k < 0 ? -1 : 1, base = ak * P;
+      for (var p = 0; p < P; p++) { var c = CT[base + p], s = sg * ST[base + p]; X[p] += cr * c - ci * s; Y[p] += cr * s + ci * c; }
+    }
+    return kk;
+  }
+
+  var sS = 0, t0 = performance.now(), last = t0, curI = -1;
+  function frame(now) {
+    var t = (now - t0) / 1000, dt = Math.min((now - last) / 1000, .05); last = now;
+    var max = Math.max(1, document.documentElement.scrollHeight - innerHeight), target = Math.min(1, Math.max(0, scrollY / max)) * (NST - 1);
+    sS += (target - sS) * (reduce ? 1 : Math.min(1, dt * 5));
+    var i = Math.min(NST - 2, Math.floor(sS)), f = Math.min(1, sS - i); if (sS >= NST - 1) { i = NST - 2; f = 1; }
+    var m = sm(.2, .8, f), w = 1 - Math.pow(Math.sin(Math.PI * m), 1.4), intro = reduce ? 1 : 1 - Math.pow(1 - Math.min(1, t / 2.8), 3);
+    var Kst = ST_[i].K + (ST_[i + 1].K - ST_[i].K) * m, K = 2.5 + (Kst - 2.5) * w; K = 2.5 + (K - 2.5) * intro;
+    var kk = blend(i, i + 1, m, K);
+    var pa = place(i), pb = place(i + 1), px = pa.x + (pb.x - pa.x) * m, py = pa.y + (pb.y - pa.y) * m, R = pa.R + (pb.R - pa.R) * m;
+    var col = mixc(ST_[i].col, ST_[i + 1].col, m), colA = mixc(ST_[i].col, ST_[i + 1].col, m);
+
+    cx.clearRect(0, 0, W, H);
+    /* radar */
+    cx.lineWidth = 1; cx.strokeStyle = 'rgba(241,237,228,.06)'; for (var r = 1; r <= 5; r++) { cx.beginPath(); cx.arc(px, py, R * r * .34, 0, TAU); cx.stroke(); }
+    cx.beginPath(); cx.moveTo(px - R * 1.9, py); cx.lineTo(px + R * 1.9, py); cx.moveTo(px, py - R * 1.9); cx.lineTo(px, py + R * 1.9); cx.stroke();
+    /* curva */
+    cx.beginPath(); for (var p = 0; p < P; p++) { var x = px + X[p] * R, y = py - Y[p] * R; if (p) cx.lineTo(x, y); else cx.moveTo(x, y); } cx.closePath();
+    cx.globalAlpha = .07; cx.fillStyle = col; cx.fill(); cx.globalAlpha = 1;
+    cx.shadowColor = col; cx.shadowBlur = 16; cx.strokeStyle = col; cx.lineWidth = 2.4; cx.lineJoin = 'round'; cx.stroke(); cx.shadowBlur = 0;
+    /* epiciclos */
+    var terms = []; for (var k = -kk; k <= kk; k++) { if (!k) continue; var ii = k + M; terms.push([k, Math.hypot(bre[ii], bim[ii]), Math.atan2(bim[ii], bre[ii])]); }
+    terms.sort(function (a, b) { return b[1] - a[1]; });
+    var sp = reduce ? 0 : (t * .28) % TAU, zx = bre[M], zy = bim[M];
+    cx.lineWidth = 1; var drawn = 0;
+    for (var q = 0; q < terms.length; q++) {
+      var T = terms[q], ang = T[0] * sp + T[2], nx = zx + T[1] * Math.cos(ang), ny = zy + T[1] * Math.sin(ang), rp = T[1] * R;
+      if (rp > 2.2 && drawn < 22) { cx.strokeStyle = 'rgba(241,237,228,' + (.22 - drawn * .008) + ')'; cx.beginPath(); cx.arc(px + zx * R, py - zy * R, rp, 0, TAU); cx.stroke(); cx.strokeStyle = 'rgba(241,237,228,.4)'; cx.beginPath(); cx.moveTo(px + zx * R, py - zy * R); cx.lineTo(px + nx * R, py - ny * R); cx.stroke(); drawn++; }
+      zx = nx; zy = ny;
+    }
+    /* cometa */
+    var pi = Math.floor(sp / TAU * P) % P; cx.lineCap = 'round'; cx.lineWidth = 4;
+    for (var c = 0; c < 46; c++) { var a0 = (pi - c + P) % P, a1 = (pi - c - 1 + P) % P; cx.strokeStyle = 'rgba(255,255,255,' + (.95 * (1 - c / 46)).toFixed(3) + ')'; cx.beginPath(); cx.moveTo(px + X[a0] * R, py - Y[a0] * R); cx.lineTo(px + X[a1] * R, py - Y[a1] * R); cx.stroke(); }
+    cx.fillStyle = '#fff'; cx.shadowColor = col; cx.shadowBlur = 20; cx.beginPath(); cx.arc(px + zx * R, py - zy * R, 5, 0, TAU); cx.fill(); cx.shadowBlur = 0;
+
+    /* interfaz */
+    document.documentElement.style.setProperty('--acc', col); $('#kn').textContent = ('00' + Math.round(K * 2)).slice(-3);
+    var near = Math.round(sS); if (near !== curI) { curI = near; $('#cur').textContent = ('0' + (near + 1)).slice(-2); $$('#dots button').forEach(function (b, j) { b.classList.toggle('on', j === near); }); $$('.nav button[data-go]').forEach(function (b) { var g = +b.dataset.go; b.classList.toggle('on', !b.classList.contains('cta') && ((g === 1 && near >= 1 && near <= 6) || (g === 7 && near === 7) || (g === 8 && near === 8))); }); }
+    pnEls.forEach(function (el, j) {
+      var d = Math.abs(sS - j), a = 1 - sm(.12, .5, d); el.style.opacity = a.toFixed(3); el.style.visibility = a > .01 ? 'visible' : 'hidden'; el.style.pointerEvents = a > .6 ? 'auto' : 'none';
+      var dy = (sS - j) * -40, isC = el.classList.contains('c') || narrow; el.style.transform = isC ? 'translate(-50%,' + dy + 'px)' : 'translateY(calc(-50% + ' + dy + 'px))';
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* navegación */
+  function go(i) { var max = document.documentElement.scrollHeight - innerHeight; scrollTo({ top: max * (i / (NST - 1)), behavior: reduce ? 'auto' : 'smooth' }); }
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(+b.dataset.go); var c = e.target.closest('[data-case]'); if (c) openCase(+c.dataset.case); });
+  $('#home').addEventListener('click', function (e) { e.preventDefault(); go(0); });
+
+  /* caso */
+  var dlg = $('#case'), cur = 1;
+  function emblem(i, col) { var pts = SH[i], d = ''; for (var j = 0; j < NS; j += 4) d += (j ? 'L' : 'M') + (pts[j][0] * 100).toFixed(1) + ' ' + (-pts[j][1] * 100).toFixed(1); return '<svg viewBox="-115 -115 230 230" aria-hidden="true"><path d="' + d + 'Z" fill="' + col + '" fill-opacity=".1" stroke="' + col + '" stroke-width="3" stroke-linejoin="round"/></svg>'; }
+  function render(i) { cur = i; var s = ST_[i]; $('#c-a').innerHTML = emblem(i, s.col); $('#c-k').textContent = s.c + ' · ' + s.y; $('#c-title').textContent = s.n; $('#c-ld').textContent = s.ld; $('#c-ch').textContent = s.ch; $('#c-so').textContent = s.so; $('#c-r').innerHTML = s.r.map(function (r) { return '<div><b>' + r[0] + '</b><span>' + r[1] + '</span></div>'; }).join(''); dlg.style.setProperty('--acc', s.col); }
+  function openCase(i) { render(i); dlg.showModal(); }
+  $('#c-x').addEventListener('click', function () { dlg.close(); }); dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') render(cur >= 6 ? 1 : cur + 1); if (e.key === 'ArrowLeft') render(cur <= 1 ? 6 : cur - 1); });
+  document.addEventListener('keydown', function (e) { if (dlg.open) return; if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(Math.min(NST - 1, Math.round(sS) + 1)); } if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(Math.max(0, Math.round(sS) - 1)); } });
+
+  $('#form').addEventListener('submit', function (e) { e.preventDefault(); var n = $('#nm').value.trim(), m = $('#em').value.trim(), s = $('#ms').value.trim(), r = $('#reply'); if (!n || !/^\S+@\S+\.\S+$/.test(m) || !s) { r.textContent = 'Faltan nombre, email o mensaje.'; return; } r.textContent = 'Abriendo tu correo…'; location.href = 'mailto:hola@cosxs.com?subject=' + encodeURIComponent('Nuevo proyecto — ' + n) + '&body=' + encodeURIComponent(s + '\n\n— ' + n + ' (' + m + ')'); });
+})();
+</script>
+</body>
+</html>
